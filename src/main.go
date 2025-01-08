@@ -1,47 +1,56 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
+	"time"
 
-	"github.com/mymmrac/telego"
-
-	th "github.com/mymmrac/telego/telegohandler"
-	tu "github.com/mymmrac/telego/telegoutil"
+	tele "gopkg.in/telebot.v4"
 )
 
 func main() {
-	botToken := ""
-
-	bot, err := telego.NewBot(botToken, telego.WithDefaultDebugLogger())
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	pref := tele.Settings{
+		Token:  "",
+		Poller: &tele.LongPoller{Timeout: 1 * time.Second},
 	}
 
-	updates, _ := bot.UpdatesViaLongPolling(nil)
+	b, err := tele.NewBot(pref)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
-	bh, _ := th.NewBotHandler(bot, updates)
+	var (
+		// Universal markup builders.
+		menu     = &tele.ReplyMarkup{ResizeKeyboard: true}
+		selector = &tele.ReplyMarkup{}
 
-	defer bh.Stop()
-	defer bot.StopLongPolling()
+		// Reply buttons.
+		btnHelp     = menu.Text("ℹ Help")
+		btnSettings = menu.Text("⚙ Settings")
 
-	bh.Handle(func(bot *telego.Bot, update telego.Update) {
-		chatId := tu.ID(update.Message.Chat.ID)
-		_, _ = bot.SendSticker(
-			tu.Sticker(
-				chatId,
-				tu.FileFromID("CAACAgIAAxkBAAENbgRndo9rt-tWiih7QglKDk4jd9i9PQACAwEAAladvQoC5dF4h-X6TzYE"),
-			),
-		)
-		message := tu.Message(
-			chatId,
-			"Hello!",
-		)
+		// Inline buttons.
+		//
+		// Pressing it will cause the client to
+		// send the bot a callback.
+		//
+		// Make sure Unique stays unique as per button kind
+		// since it's required for callback routing to work.
+		//
+		btnPrev = selector.Data("⬅", "prev")
+		btnNext = selector.Data("➡", "next")
+	)
 
-		bot.SendMessage(message)
+	menu.Reply(
+		menu.Row(btnHelp),
+		menu.Row(btnSettings),
+	)
+	selector.Inline(
+		selector.Row(btnPrev, btnNext),
+	)
 
-	}, th.CommandEqual("start"))
-	bh.Start()
+	b.Handle("/start", func(c tele.Context) error {
+		return c.Send("Hello!", menu)
+	})
+
+	b.Start()
 }
