@@ -19,38 +19,41 @@ func main() {
 		return
 	}
 
+	//var lastmessageText string
+
 	var (
-		// Universal markup builders.
-		menu     = &tele.ReplyMarkup{ResizeKeyboard: true}
 		selector = &tele.ReplyMarkup{}
 
-		// Reply buttons.
-		btnHelp     = menu.Text("ℹ Help")
-		btnSettings = menu.Text("⚙ Settings")
+		menu = &tele.ReplyMarkup{ResizeKeyboard: true}
 
-		// Inline buttons.
-		//
-		// Pressing it will cause the client to
-		// send the bot a callback.
-		//
-		// Make sure Unique stays unique as per button kind
-		// since it's required for callback routing to work.
-		//
-		btnPrev = selector.Data("⬅", "prev")
-		btnNext = selector.Data("➡", "next")
+		btnBtc  = menu.Text("Bitcoin")
+		btnUsdt = menu.Text("USDT")
+		btnEth  = menu.Text("Ethereum")
+		btnSol  = menu.Text("Solana")
+		btnTon  = menu.Text("Toncoin")
+
+		//Inline buttons
+		btnPrev = selector.Data("₿ Cryptocurrency", "crypto")
 	)
 
 	menu.Reply(
-		menu.Row(btnHelp),
-		menu.Row(btnSettings),
+		menu.Row(btnBtc),
+		menu.Row(btnUsdt),
+		menu.Row(btnEth),
+		menu.Row(btnSol),
+		menu.Row(btnTon),
 	)
+
 	selector.Inline(
-		selector.Row(btnPrev, btnNext),
+		selector.Row(btnPrev),
 	)
 
 	b.Handle("/start", func(c tele.Context) error {
-		return c.Send("Hello!", menu)
+		return c.Send("Hello! \nHere you can find the latest cryptocurrency rates for Bitcoin, Ethereum, Solana, USDT, and TON", selector)
 	})
 
+	b.Handle(&btnPrev, func(c tele.Context) error {
+		return c.Send("Choose cryptocurrency:", menu)
+	})
 	b.Start()
 }
