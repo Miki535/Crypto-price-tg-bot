@@ -9,7 +9,7 @@ import (
 
 func main() {
 	pref := tele.Settings{
-		Token:  "",
+		Token:  "7434140671:AAGineKwMZ-T6_I0vA92qbcrC0K8A9R7YdU",
 		Poller: &tele.LongPoller{Timeout: 1 * time.Second},
 	}
 
