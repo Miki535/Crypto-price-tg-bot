@@ -15,18 +15,23 @@ var CryptoChoose float64
 
 type CoinGeckoResponse struct {
 	Bitcoin struct {
+		Uah float64 `json:"uah"`
 		Usd float64 `json:"usd"`
 	} `json:"bitcoin"`
 	Ethereum struct {
+		Uah float64 `json:"uah"`
 		Usd float64 `json:"usd"`
 	} `json:"ethereum"`
 	Solana struct {
+		Uah float64 `json:"uah"`
 		Usd float64 `json:"usd"`
 	} `json:"solana"`
 	Tether struct {
+		Uah float64 `json:"uah"`
 		Usd float64 `json:"usd"`
 	} `json:"tether"`
 	Dogecoin struct {
+		Uah float64 `json:"uah"`
 		Usd float64 `json:"usd"`
 	} `json:"dogecoin"`
 }
@@ -55,7 +60,7 @@ func main() {
 		btnSol  = menu.Text("Solana")
 		btnTon  = menu.Text("Dogecoin")
 
-		uah_convert_btn = selector.Data("Convert to UAH", "uahs")
+		uah_convert_btn = selector.Data("Convert to UAH ₴", "uahs")
 		//Inline buttons
 		btnPrev = selector.Data("₿ Cryptocurrency", "crypto")
 	)
@@ -82,6 +87,10 @@ func main() {
 
 	b.Handle(&btnPrev, func(c tele.Context) error {
 		return c.Send("Choose cryptocurrency:", menu)
+	})
+
+	b.Handle(&uah_convert_btn, func(c tele.Context) error {
+
 	})
 
 	b.Handle(tele.OnText, func(c tele.Context) error {
