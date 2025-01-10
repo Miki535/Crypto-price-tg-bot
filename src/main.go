@@ -10,6 +10,7 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
+var userMessage string
 var full_Result string
 var CryptoChoose float64
 
@@ -94,18 +95,18 @@ func main() {
 	})
 
 	b.Handle(tele.OnText, func(c tele.Context) error {
-		userMessage := c.Text()
-		GetDataFromApi(userMessage)
+		userMessage = c.Text()
+		GetDataFromApi(userMessage, "usd")
 		return c.Send(full_Result, uah_selector)
 	})
 
 	b.Start()
 }
 
-func GetDataFromApi(crypto string) {
+func GetDataFromApi(crypto string, choose string) {
 	client := &http.Client{Timeout: 5 * time.Second}
 
-	resp, err := client.Get("https://api.coingecko.com/api/v3/simple/price?ids=" + crypto + "&vs_currencies=usd")
+	resp, err := client.Get("https://api.coingecko.com/api/v3/simple/price?ids=" + crypto + "&vs_currencies=" + choose)
 	if err != nil {
 		//Add error
 	}
@@ -122,15 +123,36 @@ func GetDataFromApi(crypto string) {
 
 	switch crypto {
 	case "Bitcoin":
-		CryptoChoose = result.Bitcoin.Usd
+		if choose == "usd" {
+			CryptoChoose = result.Bitcoin.Usd
+		} else {
+			CryptoChoose = result.Bitcoin.Uah
+		}
 	case "Ethereum":
-		CryptoChoose = result.Ethereum.Usd
+		if choose == "usd" {
+			CryptoChoose = result.Ethereum.Usd
+		} else {
+			CryptoChoose = result.Ethereum.Uah
+		}
 	case "Tether":
+		if choose == "usd" {
+			CryptoChoose = result.Tether.Usd
+		} else {
+			CryptoChoose = result.Tether.Uah
+		}
 		CryptoChoose = result.Tether.Usd
 	case "Solana":
-		CryptoChoose = result.Solana.Usd
+		if choose == "usd" {
+			CryptoChoose = result.Solana.Usd
+		} else {
+			CryptoChoose = result.Solana.Uah
+		}
 	case "Dogecoin":
-		CryptoChoose = result.Dogecoin.Usd
+		if choose == "usd" {
+			CryptoChoose = result.Dogecoin.Usd
+		} else {
+			CryptoChoose = result.Dogecoin.Uah
+		}
 	}
 
 	full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент...$%.2f\n", CryptoChoose)
