@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"time"
@@ -10,10 +10,17 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-type Data struct {
+type CoinGeckoResponse struct {
+	Bitcoin struct {
+		Usd float64 `json:"usd"`
+	} `json:"bitcoin"`
+	Ethereum struct {
+		Usd float64 `json:"usd"`
+	} `json:"ethereum"`
+	Solana struct {
+		Usd float64 `json:"usd"`
+	} `json:"solana"`
 }
-
-var TestData string
 
 func main() {
 	pref := tele.Settings{
@@ -61,8 +68,11 @@ func main() {
 	})
 
 	b.Handle("/test", func(c tele.Context) error {
-		GetDataFromApi()
-		return c.Send(TestData)
+		Result, err := GetDataFromApi()
+		if err != nil {
+			fmt.Println(fmt.Sprintf("Current price of Solana (SOL) in USD: $%.2f", Result))
+		}
+		return c.Send(Result)
 	})
 
 	b.Handle(&btnPrev, func(c tele.Context) error {
@@ -71,18 +81,27 @@ func main() {
 	b.Start()
 }
 
-func GetDataFromApi() {
-	url := "https://api.coingecko.com/api/v3/coins/solana?x_cg_demo_api_key=CG-pXdsuqQf4duHNu3i1L2JetMp"
+func GetDataFromAPi() {
+	client := &http.Client{Timeout: 10 * time.Second}
 
-	req, _ := http.NewRequest("GET", url, nil)
+	// Відправка запиту до CoinGecko API
+	resp, err := client.Get("https://api.coingecko.com/api/v3/simple/price?ids=" + crypto + "&vs_currencies=usd")
+	if err != nil {
+		//Add error
+	}
+	defer resp.Body.Close()
 
-	req.Header.Add("accept", "application/json")
+	if resp.StatusCode != http.StatusOK {
+		//Add error
+	}
 
-	res, _ := http.DefaultClient.Do(req)
+	// Розбір JSON-відповіді
+	var result CoinGeckoResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		//Add error
+	}
 
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
+	//		Result := fmt.Sprintf("Курс біткоіну на данний момент...$%.2f\n", result.Bitcoin.Usd)
+	//		Result := fmt.Sprintf("Курс ефіру на данний момент...$%.2f\n", result.Ethereum.Usd)
 
-	fmt.Println(string(body))
-	TestData = string(body)
 }
