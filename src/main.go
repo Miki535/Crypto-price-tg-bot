@@ -10,6 +10,8 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
+var Result string
+
 type CoinGeckoResponse struct {
 	Bitcoin struct {
 		Usd float64 `json:"usd"`
@@ -68,10 +70,7 @@ func main() {
 	})
 
 	b.Handle("/test", func(c tele.Context) error {
-		Result, err := GetDataFromApi()
-		if err != nil {
-			fmt.Println(fmt.Sprintf("Current price of Solana (SOL) in USD: $%.2f", Result))
-		}
+		GetDataFromApi("bitcoin")
 		return c.Send(Result)
 	})
 
@@ -81,10 +80,9 @@ func main() {
 	b.Start()
 }
 
-func GetDataFromAPi(crypto string) {
-	client := &http.Client{Timeout: 10 * time.Second}
+func GetDataFromApi(crypto string) {
+	client := &http.Client{Timeout: 5 * time.Second}
 
-	// Відправка запиту до CoinGecko API
 	resp, err := client.Get("https://api.coingecko.com/api/v3/simple/price?ids=" + crypto + "&vs_currencies=usd")
 	if err != nil {
 		//Add error
@@ -101,7 +99,7 @@ func GetDataFromAPi(crypto string) {
 		//Add error
 	}
 
-	//		Result := fmt.Sprintf("Курс біткоіну на данний момент...$%.2f\n", result.Bitcoin.Usd)
+	Result = fmt.Sprintf("Курс біткоіну на данний момент...$%.2f\n", result.Bitcoin.Usd)
 	//		Result := fmt.Sprintf("Курс ефіру на данний момент...$%.2f\n", result.Ethereum.Usd)
 
 }
