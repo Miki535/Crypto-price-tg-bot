@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"gopkg.in/telebot.v4"
 	tele "gopkg.in/telebot.v4"
 )
 
@@ -27,6 +26,9 @@ type CoinGeckoResponse struct {
 	Tether struct {
 		Usd float64 `json:"usd"`
 	} `json:"tether"`
+	Dogecoin struct {
+		Usd float64 `json:"usd"`
+	} `json:"dogecoin"`
 }
 
 func main() {
@@ -41,10 +43,9 @@ func main() {
 		return
 	}
 
-	//var lastmessageText string
-
 	var (
-		selector = &tele.ReplyMarkup{}
+		selector     = &tele.ReplyMarkup{}
+		uah_selector = &tele.ReplyMarkup{}
 
 		menu = &tele.ReplyMarkup{ResizeKeyboard: true}
 
@@ -52,8 +53,9 @@ func main() {
 		btnUsdt = menu.Text("Tether")
 		btnEth  = menu.Text("Ethereum")
 		btnSol  = menu.Text("Solana")
-		btnTon  = menu.Text("toncoin")
+		btnTon  = menu.Text("Dogecoin")
 
+		uah_convert_btn = selector.Data("Convert to UAH", "uahs")
 		//Inline buttons
 		btnPrev = selector.Data("₿ Cryptocurrency", "crypto")
 	)
@@ -70,6 +72,10 @@ func main() {
 		selector.Row(btnPrev),
 	)
 
+	uah_selector.Inline(
+		selector.Row(uah_convert_btn),
+	)
+
 	b.Handle("/start", func(c tele.Context) error {
 		return c.Send("Hello! \nHere you can find the latest cryptocurrency rates for Bitcoin, Ethereum, Solana, USDT, and TON", selector)
 	})
@@ -78,10 +84,10 @@ func main() {
 		return c.Send("Choose cryptocurrency:", menu)
 	})
 
-	b.Handle(telebot.OnText, func(c tele.Context) error {
+	b.Handle(tele.OnText, func(c tele.Context) error {
 		userMessage := c.Text()
 		GetDataFromApi(userMessage)
-		return c.Send(full_Result)
+		return c.Send(full_Result, uah_selector)
 	})
 
 	b.Start()
@@ -114,6 +120,8 @@ func GetDataFromApi(crypto string) {
 		CryptoChoose = result.Tether.Usd
 	case "Solana":
 		CryptoChoose = result.Solana.Usd
+	case "Dogecoin":
+		CryptoChoose = result.Dogecoin.Usd
 	}
 
 	full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент...$%.2f\n", CryptoChoose)
