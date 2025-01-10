@@ -90,14 +90,15 @@ func main() {
 		return c.Send("Choose cryptocurrency:", menu)
 	})
 
-	b.Handle(&uah_convert_btn, func(c tele.Context) error {
-
-	})
-
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		userMessage = c.Text()
 		GetDataFromApi(userMessage, "usd")
 		return c.Send(full_Result, uah_selector)
+	})
+
+	b.Handle(&uah_convert_btn, func(c tele.Context) error {
+		GetDataFromApi(userMessage, "uah")
+		return c.Send(full_Result)
 	})
 
 	b.Start()
