@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"gopkg.in/telebot.v4"
 	tele "gopkg.in/telebot.v4"
 )
 
-var Result string
+var full_Result string
+var CryptoChoose float64
 
 type CoinGeckoResponse struct {
 	Bitcoin struct {
@@ -22,6 +24,12 @@ type CoinGeckoResponse struct {
 	Solana struct {
 		Usd float64 `json:"usd"`
 	} `json:"solana"`
+	Usdt struct {
+		Usd float64 `json:"usd"`
+	} `json:"usdt"`
+	Ton struct {
+		Usd float64 `json:"usd"`
+	} `json:"ton"`
 }
 
 func main() {
@@ -69,14 +77,16 @@ func main() {
 		return c.Send("Hello! \nHere you can find the latest cryptocurrency rates for Bitcoin, Ethereum, Solana, USDT, and TON", selector)
 	})
 
-	b.Handle("/test", func(c tele.Context) error {
-		GetDataFromApi("bitcoin")
-		return c.Send(Result)
-	})
-
 	b.Handle(&btnPrev, func(c tele.Context) error {
 		return c.Send("Choose cryptocurrency:", menu)
 	})
+
+	b.Handle(telebot.OnText, func(c tele.Context) error {
+		userMessage := c.Text()
+		GetDataFromApi(userMessage)
+		return c.Send(full_Result)
+	})
+
 	b.Start()
 }
 
@@ -93,13 +103,24 @@ func GetDataFromApi(crypto string) {
 		//Add error
 	}
 
-	// Розбір JSON-відповіді
 	var result CoinGeckoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		//Add error
 	}
 
-	Result = fmt.Sprintf("Курс біткоіну на данний момент...$%.2f\n", result.Bitcoin.Usd)
-	//		Result := fmt.Sprintf("Курс ефіру на данний момент...$%.2f\n", result.Ethereum.Usd)
+	switch crypto {
+	case "Bitcoin":
+		CryptoChoose = result.Bitcoin.Usd
+	case "Ethereum":
+		CryptoChoose = result.Ethereum.Usd
+	case "Usdt":
+		CryptoChoose = result.Usdt.Usd
+	case "Solana":
+		CryptoChoose = result.Solana.Usd
+	case "Ton":
+		CryptoChoose = result.Ton.Usd
+	}
+
+	full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент...$%.2f\n", CryptoChoose)
 
 }
