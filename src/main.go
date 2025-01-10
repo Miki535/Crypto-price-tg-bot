@@ -1,11 +1,17 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"time"
 
 	tele "gopkg.in/telebot.v4"
 )
+
+type Data struct {
+}
 
 func main() {
 	pref := tele.Settings{
@@ -56,4 +62,19 @@ func main() {
 		return c.Send("Choose cryptocurrency:", menu)
 	})
 	b.Start()
+}
+
+func GetDataFromApi() {
+	url := "https://api.coingecko.com/api/v3/ping"
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("accept", "application/json")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	fmt.Println(string(body))
 }
