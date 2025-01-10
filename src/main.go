@@ -81,7 +81,7 @@ func main() {
 	b.Start()
 }
 
-func GetDataFromAPi() {
+func GetDataFromAPi(crypto string) {
 	client := &http.Client{Timeout: 10 * time.Second}
 
 	// Відправка запиту до CoinGecko API
