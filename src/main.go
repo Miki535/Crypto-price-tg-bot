@@ -24,12 +24,9 @@ type CoinGeckoResponse struct {
 	Solana struct {
 		Usd float64 `json:"usd"`
 	} `json:"solana"`
-	Usdt struct {
+	Tether struct {
 		Usd float64 `json:"usd"`
-	} `json:"usdt"`
-	Ton struct {
-		Usd float64 `json:"usd"`
-	} `json:"ton"`
+	} `json:"tether"`
 }
 
 func main() {
@@ -52,10 +49,10 @@ func main() {
 		menu = &tele.ReplyMarkup{ResizeKeyboard: true}
 
 		btnBtc  = menu.Text("Bitcoin")
-		btnUsdt = menu.Text("USDT")
+		btnUsdt = menu.Text("Tether")
 		btnEth  = menu.Text("Ethereum")
 		btnSol  = menu.Text("Solana")
-		btnTon  = menu.Text("Toncoin")
+		btnTon  = menu.Text("toncoin")
 
 		//Inline buttons
 		btnPrev = selector.Data("₿ Cryptocurrency", "crypto")
@@ -113,12 +110,10 @@ func GetDataFromApi(crypto string) {
 		CryptoChoose = result.Bitcoin.Usd
 	case "Ethereum":
 		CryptoChoose = result.Ethereum.Usd
-	case "Usdt":
-		CryptoChoose = result.Usdt.Usd
+	case "Tether":
+		CryptoChoose = result.Tether.Usd
 	case "Solana":
 		CryptoChoose = result.Solana.Usd
-	case "Ton":
-		CryptoChoose = result.Ton.Usd
 	}
 
 	full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент...$%.2f\n", CryptoChoose)
