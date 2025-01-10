@@ -13,6 +13,8 @@ import (
 type Data struct {
 }
 
+var TestData string
+
 func main() {
 	pref := tele.Settings{
 		Token:  "7434140671:AAGineKwMZ-T6_I0vA92qbcrC0K8A9R7YdU",
@@ -58,6 +60,11 @@ func main() {
 		return c.Send("Hello! \nHere you can find the latest cryptocurrency rates for Bitcoin, Ethereum, Solana, USDT, and TON", selector)
 	})
 
+	b.Handle("/test", func(c tele.Context) error {
+		GetDataFromApi()
+		return c.Send(TestData)
+	})
+
 	b.Handle(&btnPrev, func(c tele.Context) error {
 		return c.Send("Choose cryptocurrency:", menu)
 	})
@@ -65,7 +72,7 @@ func main() {
 }
 
 func GetDataFromApi() {
-	url := "https://api.coingecko.com/api/v3/ping"
+	url := "https://api.coingecko.com/api/v3/coins/solana?x_cg_demo_api_key=CG-pXdsuqQf4duHNu3i1L2JetMp"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -77,4 +84,5 @@ func GetDataFromApi() {
 	body, _ := io.ReadAll(res.Body)
 
 	fmt.Println(string(body))
+	TestData = string(body)
 }
