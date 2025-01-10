@@ -155,7 +155,10 @@ func GetDataFromApi(crypto string, choose string) {
 			CryptoChoose = result.Dogecoin.Uah
 		}
 	}
+	symbol := "$"
+	if choose != "usd" {
+		symbol = "₴"
+	}
 
-	full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент...$%.2f\n", CryptoChoose)
-
+	full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент..."+symbol+"%.2f\n", CryptoChoose)
 }
