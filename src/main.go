@@ -93,19 +93,19 @@ func main() {
 
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		userMessage = c.Text()
-		GetDataFromApi(userMessage, "usd")
+		GetDataFromApi(userMessage, "usd", c)
 		return c.Send(full_Result, uah_selector)
 	})
 
 	b.Handle(&uah_convert_btn, func(c tele.Context) error {
-		GetDataFromApi(userMessage, "uah")
+		GetDataFromApi(userMessage, "uah", c)
 		return c.Send(full_uah_Result)
 	})
 
 	b.Start()
 }
 
-func GetDataFromApi(crypto string, choose string) {
+func GetDataFromApi(crypto string, choose string, c tele.Context) {
 	client := &http.Client{Timeout: 5 * time.Second}
 
 	resp, err := client.Get("https://api.coingecko.com/api/v3/simple/price?ids=" + crypto + "&vs_currencies=" + choose)
@@ -116,7 +116,9 @@ func GetDataFromApi(crypto string, choose string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Println("\n Error while closing resp.Body, ERROR!; line 114-116; error; status code bad!")
+		c.Send("You have tried too much! \nPlease do again for 60sec!")
+		//time-out for 30 sec for api
+		time.Sleep(30 * time.Second)
 		return
 	}
 
@@ -145,7 +147,6 @@ func GetDataFromApi(crypto string, choose string) {
 		} else {
 			CryptoChoose = result.Tether.Uah
 		}
-		CryptoChoose = result.Tether.Usd
 	case "Solana":
 		if choose == "usd" {
 			CryptoChoose = result.Solana.Usd
