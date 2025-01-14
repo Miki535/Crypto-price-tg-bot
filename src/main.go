@@ -45,7 +45,7 @@ func main() {
 
 	b, err := tele.NewBot(pref)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, "Critical ERROR while start new bot! ;ERROR;")
 		return
 	}
 
@@ -109,17 +109,20 @@ func GetDataFromApi(crypto string, choose string) {
 
 	resp, err := client.Get("https://api.coingecko.com/api/v3/simple/price?ids=" + crypto + "&vs_currencies=" + choose)
 	if err != nil {
-		//Add error
+		log.Fatal("\n client.Get ERROR!\n line 110; error\n")
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		//Add error
+		log.Fatal("\n Error while closing resp.Body, ERROR!; line 114-116; error; status code bad!\n")
+		return
 	}
 
 	var result CoinGeckoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		//Add error
+		log.Fatal("Error while decoding jsos\n;error; line 123")
+		return
 	}
 
 	switch crypto {
