@@ -12,6 +12,7 @@ import (
 
 var userMessage string
 var full_Result string
+var full_uah_Result string
 var CryptoChoose float64
 
 type CoinGeckoResponse struct {
@@ -40,7 +41,7 @@ type CoinGeckoResponse struct {
 func main() {
 	pref := tele.Settings{
 		Token:  "7434140671:AAGineKwMZ-T6_I0vA92qbcrC0K8A9R7YdU",
-		Poller: &tele.LongPoller{Timeout: 1 * time.Second},
+		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	}
 
 	b, err := tele.NewBot(pref)
@@ -98,7 +99,7 @@ func main() {
 
 	b.Handle(&uah_convert_btn, func(c tele.Context) error {
 		GetDataFromApi(userMessage, "uah")
-		return c.Send(full_Result)
+		return c.Send(full_uah_Result)
 	})
 
 	b.Start()
@@ -109,19 +110,19 @@ func GetDataFromApi(crypto string, choose string) {
 
 	resp, err := client.Get("https://api.coingecko.com/api/v3/simple/price?ids=" + crypto + "&vs_currencies=" + choose)
 	if err != nil {
-		log.Fatal("\n client.Get ERROR!\n line 110; error\n")
+		log.Println("\n client.Get ERROR!\n line 110; error")
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatal("\n Error while closing resp.Body, ERROR!; line 114-116; error; status code bad!\n")
+		log.Println("\n Error while closing resp.Body, ERROR!; line 114-116; error; status code bad!")
 		return
 	}
 
 	var result CoinGeckoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		log.Fatal("Error while decoding jsos\n;error; line 123")
+		log.Println("Error while decoding jsos\n;error; line 123")
 		return
 	}
 
@@ -163,5 +164,9 @@ func GetDataFromApi(crypto string, choose string) {
 		symbol = "₴"
 	}
 
-	full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент..."+symbol+"%.2f\n", CryptoChoose)
+	if choose != "usd" {
+		full_uah_Result = fmt.Sprintf("Курс "+crypto+" на данний момент..."+symbol+"%.2f\n", CryptoChoose)
+	} else {
+		full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент..."+symbol+"%.2f\n", CryptoChoose)
+	}
 }
