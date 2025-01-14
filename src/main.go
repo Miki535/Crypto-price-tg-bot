@@ -10,9 +10,7 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-var userMessage string
-var full_Result string
-var full_uah_Result string
+var userMessage, full_Result, full_uah_Result string
 var CryptoChoose float64
 
 type CoinGeckoResponse struct {
