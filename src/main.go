@@ -38,7 +38,7 @@ type CoinGeckoResponse struct {
 
 func main() {
 	pref := tele.Settings{
-		Token:  "7434140671:AAGineKwMZ-T6_I0vA92qbcrC0K8A9R7YdU",
+		Token:  "Api-Key-to-tg",
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	}
 
@@ -164,8 +164,8 @@ func GetDataFromApi(crypto string, choose string, c tele.Context) {
 	}
 
 	if choose != "usd" {
-		full_uah_Result = fmt.Sprintf("Курс "+crypto+" на данний момент..."+symbol+"%.2f\n", CryptoChoose)
+		full_uah_Result = fmt.Sprintf(crypto+" price..."+symbol+"%.2f\n", CryptoChoose)
 	} else {
-		full_Result = fmt.Sprintf("Курс "+crypto+" на данний момент..."+symbol+"%.2f\n", CryptoChoose)
+		full_Result = fmt.Sprintf(crypto+" price..."+symbol+"%.2f\n", CryptoChoose)
 	}
 }
